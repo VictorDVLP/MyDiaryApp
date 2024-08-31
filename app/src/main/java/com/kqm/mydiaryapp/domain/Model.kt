@@ -1,6 +1,6 @@
 package com.kqm.mydiaryapp.domain
 
-data class Quote(val hour: String, val note: String, val quoteType: QuoteType?)
+data class Quote(val hour: String, val note: String, val quoteType: QuoteType)
 
 enum class QuoteType {
     FAMILY, PERSONAL, FRIEND, WORK

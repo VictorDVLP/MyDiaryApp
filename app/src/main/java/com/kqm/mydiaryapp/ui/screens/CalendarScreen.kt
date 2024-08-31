@@ -247,7 +247,6 @@ fun CircleTypeQuote(quoteTypeQuote: List<Quote>) {
                             QuoteType.FAMILY -> Color.Blue
                             QuoteType.FRIEND -> Color.Yellow
                             QuoteType.WORK -> Color.Red
-                            else -> Color.Transparent
                         },
                         shape = CircleShape
                     )
