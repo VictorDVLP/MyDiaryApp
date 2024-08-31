@@ -10,11 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -146,13 +147,10 @@ fun MonthList(
 
 @Composable
 fun MonthView(month: Month, onNavigateToDay: (Int) -> Unit, modifier: Modifier = Modifier) {
-    val numWeeks = (month.days.size + month.offset) / 7
-    val gridHeight = (83 * numWeeks + numWeeks - 1).dp
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(start = 4.dp, end = 4.dp, top = 24.dp, bottom = 12.dp)
     ) {
         Text(
             text = month.monthName,
@@ -161,13 +159,24 @@ fun MonthView(month: Month, onNavigateToDay: (Int) -> Unit, modifier: Modifier =
             modifier = modifier.padding(bottom = 8.dp)
         )
 
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            items(listOf("L", "M", "X", "J", "V", "S", "D")) { letra ->
+                Text(text = letra, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             verticalArrangement = Arrangement.spacedBy(1.dp),
             horizontalArrangement = Arrangement.spacedBy(1.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(gridHeight)
+                .heightIn(min = 0.dp, max = 400.dp)
         ) {
             items(month.offset) {
                 Box(modifier = Modifier.size(40.dp))

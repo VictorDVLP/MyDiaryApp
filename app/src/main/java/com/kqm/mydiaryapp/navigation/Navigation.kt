@@ -8,6 +8,7 @@ import androidx.navigation.toRoute
 import com.kqm.mydiaryapp.data.CalendarRepository
 import com.kqm.mydiaryapp.framework.CalendarDataSourceImpl
 import com.kqm.mydiaryapp.ui.screens.CalendarScreen
+import com.kqm.mydiaryapp.ui.screens.CreateQuoteScreen
 import com.kqm.mydiaryapp.ui.screens.DayScreen
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
 import com.kqm.mydiaryapp.usecases.GetDatesUseCase
@@ -28,10 +29,17 @@ fun Navigation() {
                 onNavigateToDay = { navController.navigate(DayDetail(it)) })
         }
         composable<DayDetail> { backStackEntry ->
-            val dayDetail = backStackEntry.toRoute<DayDetail>()
-            DayScreen(viewModel = viewModel, day = dayDetail.day) {
-                navController.popBackStack()
-            }
+            val dayCalendar = backStackEntry.toRoute<DayDetail>()
+            DayScreen(
+                viewModel = viewModel,
+                day = dayCalendar.dayCalendar,
+                { navController.navigate(Quote(it)) },
+                { navController.popBackStack() }
+            )
+        }
+        composable<Quote> { backStackEntry ->
+            val dayDetail = backStackEntry.toRoute<Quote>()
+            CreateQuoteScreen(viewModel = viewModel, day = dayDetail.day) { navController.popBackStack() }
         }
     }
 }

@@ -2,6 +2,7 @@ package com.kqm.mydiaryapp.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +13,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,19 +26,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
-import com.kqm.mydiaryapp.framework.generateListQuotes
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayScreen(viewModel: CalendarViewModel, day: Int, onBack: () -> Unit) {
-    val quotes = generateListQuotes()
+fun DayScreen(viewModel: CalendarViewModel, day : Int, onNavigateQuote: (Int) -> Unit, onBack: () -> Unit) {
+
+    val quotes = emptyList<Quote>()
 
     Scaffold(
         topBar = {
@@ -47,13 +48,26 @@ fun DayScreen(viewModel: CalendarViewModel, day: Int, onBack: () -> Unit) {
                 },
                 title = { Text(text = "Quotes for day $day") }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { onNavigateQuote(day) }) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Quote")
+            }
         }
     ) { innerPadding ->
-    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+        DayScreen(quotes = quotes, padding = innerPadding)
+    }
+}
+
+@Composable
+fun DayScreen(
+    quotes: List<Quote>,
+    padding: PaddingValues,
+) {
+    LazyColumn(modifier = Modifier.padding(padding)) {
         items(quotes) { quote ->
             QuoteItem(quote = quote)
         }
-    }
     }
 }
 
@@ -97,21 +111,4 @@ fun QuoteItem(quote: Quote) {
     HorizontalDivider(
         color = Color.Gray
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun QuoteItemPreview() {
-    QuoteItem(quote = Quote("10:15", "Cita del Martes", QuoteType.PERSONAL))
-}
-
-@Preview(showBackground = true)
-@Composable
-fun QuoteListPreview() {
-    val quotes = generateListQuotes()
-    LazyColumn {
-        items(quotes) { quote ->
-            QuoteItem(quote = quote)
-        }
-    }
 }

@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 object Calendar
 
 @Serializable
-data class DayDetail(val day: Int)
+data class DayDetail(val dayCalendar: Int)
 
 @Serializable
-object Quote
+data class Quote(val day: Int)
 
 @Serializable
 object News
