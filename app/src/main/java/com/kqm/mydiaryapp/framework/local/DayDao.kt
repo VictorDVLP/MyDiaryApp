@@ -1,6 +1,7 @@
 package com.kqm.mydiaryapp.framework.local
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
@@ -24,4 +25,7 @@ interface DayDao {
         insertQuotes(quote = quotes.quotes)
         insertDay(day = quotes.day)
     }
+
+    @Delete
+    suspend fun deleteDay(quote: LocalQuote)
 }
