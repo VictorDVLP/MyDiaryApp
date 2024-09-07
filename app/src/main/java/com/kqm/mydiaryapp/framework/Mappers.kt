@@ -8,7 +8,7 @@ import com.kqm.mydiaryapp.framework.local.LocalDay
 import com.kqm.mydiaryapp.framework.local.LocalQuote
 
 fun Day.toDayWithQuotes(): DayWithQuotes {
-    return DayWithQuotes(day = this.day.toLocalDay(), quotes = quotes.map { it.toLocalQuote(day = day) })
+    return DayWithQuotes(day = day.toLocalDay(), quotes = quotes.map { it.toLocalQuote(day = day) })
 }
 
 fun Quote.toLocalQuote(day: Int): LocalQuote {
