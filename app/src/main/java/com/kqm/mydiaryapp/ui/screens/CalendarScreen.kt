@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kqm.mydiaryapp.domain.Month
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
@@ -43,7 +44,7 @@ import com.kqm.mydiaryapp.domain.Year
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
 
 @Composable
-fun CalendarScreen(viewModel: CalendarViewModel, onNavigateToDay: (Int) -> Unit) {
+fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel(), onNavigateToDay: (Int) -> Unit) {
 
     val dates = viewModel.getCalendar.value
     val position = viewModel.initialPosition.value

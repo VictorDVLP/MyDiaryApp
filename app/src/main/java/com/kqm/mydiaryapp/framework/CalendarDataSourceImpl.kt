@@ -10,11 +10,12 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import javax.inject.Inject
 
 const val YEAR_AGO = 1
 const val YEAR_NEXT = 5
 
-class CalendarDataSourceImpl : CalendarDataSource {
+class CalendarDataSourceImpl @Inject constructor() : CalendarDataSource {
 
     private val monthFormatter = DateTimeFormatter.ofPattern("MMMM", Locale("es", "ES"))
 

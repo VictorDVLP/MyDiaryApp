@@ -5,14 +5,16 @@ import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.Year
 import com.kqm.mydiaryapp.framework.CalendarDataSourceImpl
 import com.kqm.mydiaryapp.framework.QuoteDataSourceImpl
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class CalendarRepository(
-   private val calendarDataSource: CalendarDataSourceImpl,
+class CalendarRepository @Inject constructor(
+   calendarDataSource: CalendarDataSourceImpl,
    private val quotesDataSource: QuoteDataSourceImpl
 ) {
-    fun getCalendar(): Pair<List<Year>, Int> = calendarDataSource.getRangeDates()
+    val calendar: Pair<List<Year>, Int> = calendarDataSource.getRangeDates()
 
-    fun getQuotes() = quotesDataSource.getQuotes()
+    val quotes: Flow<List<Day>> = quotesDataSource.getQuotes()
 
     suspend fun insertQuote(day: Day) = quotesDataSource.insertQuote(day = day)
 

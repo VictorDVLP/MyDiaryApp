@@ -28,13 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayScreen(viewModel: CalendarViewModel, day : Int, onNavigateQuote: (Int) -> Unit, onBack: () -> Unit) {
+fun DayScreen(viewModel: CalendarViewModel = hiltViewModel(), day : Int, onNavigateQuote: (Int) -> Unit, onBack: () -> Unit) {
 
     val quotes = emptyList<Quote>()
 
@@ -102,7 +103,6 @@ fun QuoteItem(quote: Quote) {
                         QuoteType.FAMILY -> Color.Blue
                         QuoteType.FRIEND -> Color.Yellow
                         QuoteType.WORK -> Color.Red
-                        else -> Color.Transparent
                     },
                     shape = CircleShape
                 )

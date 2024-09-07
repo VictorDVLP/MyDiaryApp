@@ -36,12 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kqm.mydiaryapp.domain.QuoteType
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateQuoteScreen(viewModel: CalendarViewModel, day: Int, onBack: () -> Unit) {
+fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), day: Int, onBack: () -> Unit) {
     var text by remember { mutableStateOf("") }
     var selectedOption by remember { mutableStateOf(QuoteType.WORK) }
 
