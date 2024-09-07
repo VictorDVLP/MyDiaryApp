@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface DayDao {
 
     @Transaction
-    @Query("SELECT * FROM quotes")
+    @Query("SELECT * FROM days INNER JOIN quotes ON days.day = quotes.dayId")
     fun getQuotes(): Flow<List<DayWithQuotes>>
 
     @Insert
