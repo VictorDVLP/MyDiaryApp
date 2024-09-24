@@ -23,8 +23,10 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,14 +39,30 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import kotlin.text.format
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), day: Int, onBack: () -> Unit) {
-    var text by remember { mutableStateOf("") }
-    var selectedOption by remember { mutableStateOf(QuoteType.WORK) }
+fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), dayId: String, onBack: () -> Unit) {
+
+    val timeState = remember { mutableStateOf(LocalTime.of(5, 0)) }
+    val timePickerState = rememberTimePickerState(initialHour = timeState.value.hour, initialMinute = timeState.value.minute, is24Hour = true)
+    val hour = timePickerState.hour
+    val minute = timePickerState.minute
+    val time = "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
+    val textState = remember { mutableStateOf("") }
+    val selectedQuoteType = remember { mutableStateOf( QuoteType.WORK )}
+
+    val quote = Quote(
+        hour = time,
+        note = textState.value,
+        quoteType = selectedQuoteType.value
+    )
 
     Scaffold(
         topBar = {
@@ -68,7 +86,7 @@ fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), day: Int, 
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TimePicker(
-                state = TimePickerState(initialHour = 5, initialMinute = 0, is24Hour = true),
+                state = timePickerState,
                 colors = TimePickerDefaults.colors(
                     containerColor = Color.Blue,
                     clockDialColor = Color.White
@@ -79,8 +97,8 @@ fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), day: Int, 
             Spacer(modifier = Modifier.height(4.dp))
 
             OutlinedTextField(
-                value = "",
-                onValueChange = { text = it },
+                value = textState.value,
+                onValueChange = { textState.value = it },
                 label = { Text("Evento, cita, reunión...") },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -103,8 +121,8 @@ fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), day: Int, 
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             RadioButton(
-                                selected = selectedOption == quoteType,
-                                onClick = { selectedOption = quoteType }
+                                selected = selectedQuoteType.value == quoteType,
+                                onClick = { selectedQuoteType.value = quoteType }
                             )
                             Text(
                                 text = quoteType.name,
@@ -112,7 +130,7 @@ fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), day: Int, 
                                 maxLines = 1,
                                 overflow = TextOverflow.Visible,
                                 fontStyle = FontStyle.Italic,
-                                fontWeight = if (selectedOption == quoteType) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (selectedQuoteType.value == quoteType) FontWeight.Bold else FontWeight.Normal
                             )
                         }
                     }
@@ -120,7 +138,7 @@ fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), day: Int, 
                 Spacer(modifier = Modifier.height(22.dp))
 
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { viewModel.addQuote(dayId, quote) },
                     elevation = ButtonDefaults.buttonElevation(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {

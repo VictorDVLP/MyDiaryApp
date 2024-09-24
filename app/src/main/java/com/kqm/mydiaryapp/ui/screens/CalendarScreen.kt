@@ -15,13 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
@@ -30,35 +30,50 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Month
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
 import com.kqm.mydiaryapp.domain.Year
+import com.kqm.mydiaryapp.ui.screens.common.ErrorScreen
+import com.kqm.mydiaryapp.ui.screens.common.LoadingScreen
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
+import com.kqm.mydiaryapp.ui.viewmodel.ResultCall
 
 @Composable
-fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel(), onNavigateToDay: (Int) -> Unit) {
+fun CalendarScreen(
+    viewModel: CalendarViewModel = hiltViewModel(),
+    onNavigateToDay: (String) -> Unit,
+    onBack: () -> Unit
+) {
 
-    val dates = viewModel.getCalendar.value
-    val position = viewModel.initialPosition.value
+    val state = viewModel.calendarWithQuotes.collectAsState().value
 
     val lazyListState = rememberLazyListState()
 
     Scaffold { innerPadding ->
-        YearPager(
-            years = dates,
-            initialPosition = position,
-            onNavigateToDay = onNavigateToDay,
-            paddingValues = innerPadding,
-            lazyListState = lazyListState
-        )
+        when (state) {
+            is ResultCall.Success -> { YearPager(
+                years = state.value.first,
+                initialPosition = state.value.second,
+                onNavigateToDay = onNavigateToDay,
+                paddingValues = innerPadding,
+                lazyListState = lazyListState
+            ) }
+            is ResultCall.Loading -> { LoadingScreen() }
+            is ResultCall.Error ->  { ErrorScreen(state = state, onBack = { onBack() }) }
+        }
     }
 }
 
@@ -67,7 +82,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel(), onNavigateToD
 fun YearPager(
     years: List<Year>,
     initialPosition: Int,
-    onNavigateToDay: (Int) -> Unit,
+    onNavigateToDay: (String) -> Unit,
     paddingValues: PaddingValues,
     lazyListState: LazyListState
 ) {
@@ -94,7 +109,7 @@ fun YearPager(
 @Composable
 fun YearView(
     year: Year,
-    onNavigateToDay: (Int) -> Unit,
+    onNavigateToDay: (String) -> Unit,
     lazyListState: LazyListState,
     initialPosition: Int,
     modifier: Modifier = Modifier
@@ -124,14 +139,18 @@ fun YearView(
 @Composable
 fun MonthList(
     months: List<Month>,
-    onNavigateToDay: (Int) -> Unit,
+    onNavigateToDay: (String) -> Unit,
     lazyListState: LazyListState,
     initialPosition: Int,
     modifier: Modifier = Modifier
 ) {
+
+    val focusRequester = remember { FocusRequester() }
+
     LazyColumn(
         modifier = modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .focusRequester(focusRequester),
         state = lazyListState
     ) {
         items(months) { month ->
@@ -139,15 +158,16 @@ fun MonthList(
         }
     }
 
-    LaunchedEffect(key1 = months) {
+    LaunchedEffect(key1 = Unit) {
         if (initialPosition in 0 until lazyListState.layoutInfo.totalItemsCount) {
             lazyListState.scrollToItem(initialPosition)
         }
+        focusRequester.requestFocus()
     }
 }
 
 @Composable
-fun MonthView(month: Month, onNavigateToDay: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun MonthView(month: Month, onNavigateToDay: (String) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,14 +180,14 @@ fun MonthView(month: Month, onNavigateToDay: (Int) -> Unit, modifier: Modifier =
             modifier = modifier.padding(bottom = 8.dp)
         )
 
-        LazyRow(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            items(listOf("L", "M", "X", "J", "V", "S", "D")) { letra ->
-                Text(text = letra, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            listOf("L", "M", "X", "J", "V", "S", "D").forEach { letter ->
+                Text(text = letter, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -183,11 +203,11 @@ fun MonthView(month: Month, onNavigateToDay: (Int) -> Unit, modifier: Modifier =
                 Box(modifier = Modifier.size(40.dp))
             }
 
-            items(month.days) { day ->
+            items(month.days, key = { it.idRelation }) { day ->
                 CellDay(
-                    day = day.day,
-                    quotes = emptyList(),
-                    onDayClick = { onNavigateToDay(day.day) }
+                    day = day,
+                    quotes = day.quotes,
+                    onDayClick = { onNavigateToDay(day.idRelation) }
                 )
             }
         }
@@ -196,13 +216,13 @@ fun MonthView(month: Month, onNavigateToDay: (Int) -> Unit, modifier: Modifier =
 
 @Composable
 fun CellDay(
-    day: Int,
+    day: Day,
     quotes: List<Quote>,
-    onDayClick: (Int) -> Unit,
+    onDayClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        onClick = { onDayClick(day) },
+        onClick = { onDayClick(day.idRelation) },
         modifier = modifier
             .padding(1.dp)
             .aspectRatio(0.875f),
@@ -215,7 +235,7 @@ fun CellDay(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = day.toString(),
+                    text = day.day.toString(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 19.sp
                 )
@@ -232,7 +252,7 @@ fun CellDay(
 @Composable
 fun CircleTypeQuote(quoteTypeQuote: List<Quote>) {
 
-    val quotesByType = quoteTypeQuote.groupBy { it.quoteType }.keys.toList()
+    val quotesByType = remember(quoteTypeQuote) { quoteTypeQuote.groupBy { it.quoteType }.keys.toList() }
 
     Column {
         quotesByType.forEach { quote ->

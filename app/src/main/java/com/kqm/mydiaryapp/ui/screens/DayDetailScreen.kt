@@ -23,21 +23,35 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
+import com.kqm.mydiaryapp.ui.screens.common.ErrorScreen
+import com.kqm.mydiaryapp.ui.screens.common.LoadingScreen
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
+import com.kqm.mydiaryapp.ui.viewmodel.ResultCall
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayScreen(viewModel: CalendarViewModel = hiltViewModel(), day : Int, onNavigateQuote: (Int) -> Unit, onBack: () -> Unit) {
+fun DayDetailScreen(
+    viewModel: CalendarViewModel = hiltViewModel(),
+    dayId: String,
+    onNavigateQuote: () -> Unit,
+    onBack: () -> Unit
+) {
 
-    val quotes = emptyList<Quote>()
+    val dayStateFlow = remember { viewModel.getQuotesOfDay(dayId) }
+    val day = dayStateFlow.collectAsState().value
 
     Scaffold(
         topBar = {
@@ -47,26 +61,41 @@ fun DayScreen(viewModel: CalendarViewModel = hiltViewModel(), day : Int, onNavig
                         Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
-                title = { Text(text = "Quotes for day $day") }
+                title = { Text(text = "Citas del dia $dayId") }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateQuote(day) }) {
+            FloatingActionButton(onClick = { onNavigateQuote() }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Quote")
             }
         }
     ) { innerPadding ->
-        DayScreen(quotes = quotes, padding = innerPadding)
+        when (day) {
+            is ResultCall.Success -> {
+                DayScreen(
+                    day = day.value,
+                    padding = innerPadding
+                )
+            }
+
+            is ResultCall.Loading -> {
+                LoadingScreen()
+            }
+
+            is ResultCall.Error -> {
+                ErrorScreen(state = day, onBack = { onBack() })
+            }
+        }
     }
 }
 
 @Composable
 fun DayScreen(
-    quotes: List<Quote>,
+    day: Day,
     padding: PaddingValues,
 ) {
     LazyColumn(modifier = Modifier.padding(padding)) {
-        items(quotes) { quote ->
+        items(day.quotes) { quote ->
             QuoteItem(quote = quote)
         }
     }
@@ -111,4 +140,31 @@ fun QuoteItem(quote: Quote) {
     HorizontalDivider(
         color = Color.Gray
     )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun DayDetailPreview() {
+    val listQuote = listOf(
+        Quote(
+            hour = "10:00",
+            note = "Dentista",
+            quoteType = QuoteType.PERSONAL
+        ),
+        Quote(
+            hour = "13:00",
+            note = "Llamar a mama",
+            quoteType = QuoteType.FAMILY
+        ),
+        Quote(
+            hour = "17:00",
+            note = "Entrevista de trabajo",
+            quoteType = QuoteType.WORK
+        ),
+        Quote(
+            hour = "09:30",
+            note = "Cena con amigos",
+            quoteType = QuoteType.FRIEND
+    ))
+    DayScreen(day = Day(1, "2022-10-10", listQuote), padding = PaddingValues(0.dp))
 }
