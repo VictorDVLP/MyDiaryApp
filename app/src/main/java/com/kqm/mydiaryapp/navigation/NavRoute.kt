@@ -3,14 +3,14 @@ package com.kqm.mydiaryapp.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
-object Calendar
+object CalendarScreen
 
 @Serializable
-data class DayDetail(val dayCalendar: Int)
+data class DayDetailScreen(val dayCalendar: String)
 
 @Serializable
-data class Quote(val day: Int)
+data class QuoteScreen(val dayCalendar: String)
 
 @Serializable
-object News
+object NewsScreen
 

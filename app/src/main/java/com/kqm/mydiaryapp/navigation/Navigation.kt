@@ -7,28 +7,31 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kqm.mydiaryapp.ui.screens.CalendarScreen
 import com.kqm.mydiaryapp.ui.screens.CreateQuoteScreen
-import com.kqm.mydiaryapp.ui.screens.DayScreen
+import com.kqm.mydiaryapp.ui.screens.DayDetailScreen
 
 @Composable
 fun Navigation() {
 
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Calendar) {
-        composable<Calendar> {
+    NavHost(navController = navController, startDestination = CalendarScreen) {
+        composable<CalendarScreen> {
             CalendarScreen(
-                onNavigateToDay = { navController.navigate(DayDetail(it)) })
-        }
-        composable<DayDetail> { backStackEntry ->
-            val dayCalendar = backStackEntry.toRoute<DayDetail>()
-            DayScreen (day = dayCalendar.dayCalendar,
-               onNavigateQuote =  { navController.navigate(Quote(it)) },
+                onNavigateToDay = { navController.navigate(DayDetailScreen(it)) },
                 onBack = { navController.popBackStack() }
             )
         }
-        composable<Quote> { backStackEntry ->
-            val dayDetail = backStackEntry.toRoute<Quote>()
-            CreateQuoteScreen(day = dayDetail.day) { navController.popBackStack() }
+        composable<DayDetailScreen> { backStackEntry ->
+            val dayCalendar = backStackEntry.toRoute<DayDetailScreen>()
+            DayDetailScreen (dayId = dayCalendar.dayCalendar,
+               onNavigateQuote =  { navController.navigate(QuoteScreen(dayCalendar.dayCalendar)) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable<QuoteScreen> { backStackEntry ->
+            val dayDetail = backStackEntry.toRoute<QuoteScreen>()
+            CreateQuoteScreen(dayId = dayDetail.dayCalendar)
+            { navController.popBackStack() }
         }
     }
 }
