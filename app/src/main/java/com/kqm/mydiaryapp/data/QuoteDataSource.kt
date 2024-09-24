@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 interface QuoteDataSource {
     fun getQuotes(): Flow<List<Day>>
 
-    suspend fun insertQuote(day: Day)
+    fun getQuotesOfDay(dayId: String): Flow<Day>
 
-    suspend fun deleteQuote(quote: Quote, day: Day)
+    suspend fun insertQuote(day: String, quote: Quote)
+
+    suspend fun deleteQuote(quote: Quote, day: String)
 }

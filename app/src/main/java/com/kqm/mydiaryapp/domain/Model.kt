@@ -8,7 +8,8 @@ enum class QuoteType {
 
 data class Day(
     val day: Int,
-    val quotes: List<Quote> = emptyList()
+    val idRelation: String,
+    var quotes: List<Quote> = emptyList()
 )
 
 data class Month(

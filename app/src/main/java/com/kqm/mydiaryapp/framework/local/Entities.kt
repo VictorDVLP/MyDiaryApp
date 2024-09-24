@@ -12,19 +12,19 @@ data class LocalQuote(
     @ColumnInfo(name = "hour") val hour: String,
     @ColumnInfo(name = "note") val quote: String,
     @ColumnInfo(name = "type") val typeQuote: String,
-    @ColumnInfo(name = "dayId") val dayId: Int
+    @ColumnInfo(name = "idRelation") val dayId: String
 )
 
 @Entity(tableName = "days")
 data class LocalDay(
-    @PrimaryKey val day: Int
+    @PrimaryKey val idRelation: String,
 )
 
 data class DayWithQuotes(
-    @Embedded val day: LocalDay,
+    @Embedded val date: LocalDay,
     @Relation(
-        parentColumn = "day",
-        entityColumn = "dayId"
+        parentColumn = "idRelation",
+        entityColumn = "idRelation"
     )
     val quotes: List<LocalQuote>
 )

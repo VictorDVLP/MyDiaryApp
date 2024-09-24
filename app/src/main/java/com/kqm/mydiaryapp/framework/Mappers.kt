@@ -3,15 +3,12 @@ package com.kqm.mydiaryapp.framework
 import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
+import com.kqm.mydiaryapp.domain.QuoteType.*
 import com.kqm.mydiaryapp.framework.local.DayWithQuotes
 import com.kqm.mydiaryapp.framework.local.LocalDay
 import com.kqm.mydiaryapp.framework.local.LocalQuote
 
-fun Day.toDayWithQuotes(): DayWithQuotes {
-    return DayWithQuotes(day = day.toLocalDay(), quotes = quotes.map { it.toLocalQuote(day = day) })
-}
-
-fun Quote.toLocalQuote(day: Int): LocalQuote {
+fun Quote.toLocalQuote(day: String): LocalQuote {
     return LocalQuote(
         hour = hour,
         quote = note,
@@ -20,30 +17,49 @@ fun Quote.toLocalQuote(day: Int): LocalQuote {
     )
 }
 
-private fun Int.toLocalDay(): LocalDay {
-    return LocalDay(day = this)
+fun String.toLocalDay(): LocalDay {
+    return LocalDay(idRelation = this)
 }
 
 private fun QuoteType.toConvertName(): String {
     return when (this) {
-        QuoteType.PERSONAL -> "Personal"
-        QuoteType.FAMILY -> "Familiar"
-        QuoteType.FRIEND -> "Amigos"
-        QuoteType.WORK -> "Trabajo"
+        PERSONAL -> "Personal"
+        FAMILY -> "Familiar"
+        FRIEND -> "Amigos"
+        WORK -> "Trabajo"
     }
 }
 
 fun DayWithQuotes.toDay(): Day {
+    val day = parseIdRelation(date.idRelation).first
     return Day(
-        day = day.day,
+        day = day,
+        idRelation = date.idRelation,
         quotes = quotes.map { it.toQuote() }
     )
 }
 
+fun generateIdRelation(day: Int, month: String, year: Int): String {
+    return "$day-$month-$year"
+}
+
+fun parseIdRelation(idRelation: String): Triple<Int, String, Int> {
+    val (day, month, year) = idRelation.split("-")
+    return Triple(day.toInt(), month, year.toInt())
+}
+
+
 fun LocalQuote.toQuote(): Quote {
+    val quoteType = when(typeQuote) {
+        "Personal" -> PERSONAL
+        "Familiar" -> FAMILY
+        "Amigos" -> FRIEND
+        "Trabajo" -> WORK
+        else -> PERSONAL
+    }
     return Quote(
         hour = hour,
         note = quote,
-        quoteType = QuoteType.valueOf(typeQuote.uppercase())
+        quoteType = quoteType
     )
 }

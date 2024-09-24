@@ -1,24 +1,36 @@
 package com.kqm.mydiaryapp.ui.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.kqm.mydiaryapp.domain.Day
+import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.Year
+import com.kqm.mydiaryapp.usecases.AddQuoteUseCase
+import com.kqm.mydiaryapp.usecases.DeleteQuoteUseCase
+import com.kqm.mydiaryapp.usecases.GetDateByIdUseCase
 import com.kqm.mydiaryapp.usecases.GetDatesUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CalendarViewModel(
-    getDatesUseCase: GetDatesUseCase
-): ViewModel() {
+@HiltViewModel
+class CalendarViewModel @Inject constructor(
+    getDatesUseCase: GetDatesUseCase,
+    private val getDateByIdUseCase: GetDateByIdUseCase,
+    private val addQuoteUseCase: AddQuoteUseCase,
+    private val deleteQuoteUseCase: DeleteQuoteUseCase
+) : ViewModel() {
 
-    private val _getCalendar = mutableStateOf<List<Year>>(emptyList())
-    val getCalendar: State<List<Year>> = _getCalendar
+    val calendarWithQuotes: StateFlow<ResultCall<Pair<List<Year>, Int>>> =
+        getDatesUseCase().stateAsResultIn(viewModelScope)
 
-    private val _initialPosition = mutableStateOf(0)
-    val initialPosition: State<Int> = _initialPosition
+    fun getQuotesOfDay(dayId: String): StateFlow<ResultCall<Day>> =
+        getDateByIdUseCase(dayId).stateAsResultIn(viewModelScope)
 
-    init {
-        val (years, position) = getDatesUseCase()
-            _getCalendar.value = years
-            _initialPosition.value = position
+    fun addQuote(dayId: String, quote: Quote) {
+        viewModelScope.launch {
+            addQuoteUseCase(day = dayId, quote = quote)
+        }
     }
 }
