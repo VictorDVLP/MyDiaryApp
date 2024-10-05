@@ -33,4 +33,10 @@ class CalendarViewModel @Inject constructor(
             addQuoteUseCase(day = dayId, quote = quote)
         }
     }
+
+    fun deleteQuote(quote: Quote, dayId: String) {
+        viewModelScope.launch {
+            deleteQuoteUseCase(quote, day = dayId)
+        }
+    }
 }

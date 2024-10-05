@@ -22,7 +22,7 @@ interface DayDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuotes(quote: LocalQuote)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDay(day: LocalDay)
 
     @Transaction

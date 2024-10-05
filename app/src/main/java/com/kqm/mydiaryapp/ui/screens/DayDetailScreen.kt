@@ -7,13 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -25,7 +26,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,20 +71,19 @@ fun DayDetailScreen(
         }
     ) { innerPadding ->
         when (day) {
-            is ResultCall.Success -> {
+            is ResultCall.Success ->
                 DayScreen(
                     day = day.value,
-                    padding = innerPadding
+                    padding = innerPadding,
+                    updateQuote = { onNavigateQuote() },
+                    deleteQuote = viewModel::deleteQuote
                 )
-            }
 
-            is ResultCall.Loading -> {
+            is ResultCall.Loading ->
                 LoadingScreen()
-            }
 
-            is ResultCall.Error -> {
+            is ResultCall.Error ->
                 ErrorScreen(state = day, onBack = { onBack() })
-            }
         }
     }
 }
@@ -93,17 +92,23 @@ fun DayDetailScreen(
 fun DayScreen(
     day: Day,
     padding: PaddingValues,
+    updateQuote: () -> Unit,
+    deleteQuote: (Quote, String) -> Unit
 ) {
     LazyColumn(modifier = Modifier.padding(padding)) {
         items(day.quotes) { quote ->
-            QuoteItem(quote = quote)
+            QuoteItem(
+                quote = quote,
+                onUpdateClick = { updateQuote() },
+                onDeleteClick = { deleteQuote(quote, day.idRelation) }
+            )
         }
     }
 }
 
 
 @Composable
-fun QuoteItem(quote: Quote) {
+fun QuoteItem(quote: Quote, onUpdateClick: () -> Unit, onDeleteClick: (Quote) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,18 +117,24 @@ fun QuoteItem(quote: Quote) {
     ) {
         Text(
             text = quote.hour,
-            fontSize = 22.sp,
-            modifier = Modifier.weight(0.2f)
+            fontSize = 19.sp,
+            modifier = Modifier.weight(0.25f)
         )
         Text(
             text = quote.note,
-            fontSize = 18.sp,
+            fontSize = 16.sp,
             modifier = Modifier.weight(0.6f)
         )
+        IconButton(modifier = Modifier.weight(0.1f), onClick = { onUpdateClick() }) {
+            Icon(Icons.Filled.Create, contentDescription = "Add Quote")
+        }
+        IconButton(modifier = Modifier.weight(0.1f), onClick = { onDeleteClick(quote) }) {
+            Icon(Icons.Filled.Delete, contentDescription = "Delete Quote")
+        }
         Box(
             modifier = Modifier
-                .padding(4.dp)
-                .size(18.dp)
+                .weight(0.07f)
+                .padding(2.dp)
                 .aspectRatio(1f)
                 .background(
                     color =
@@ -144,27 +155,6 @@ fun QuoteItem(quote: Quote) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun DayDetailPreview() {
-    val listQuote = listOf(
-        Quote(
-            hour = "10:00",
-            note = "Dentista",
-            quoteType = QuoteType.PERSONAL
-        ),
-        Quote(
-            hour = "13:00",
-            note = "Llamar a mama",
-            quoteType = QuoteType.FAMILY
-        ),
-        Quote(
-            hour = "17:00",
-            note = "Entrevista de trabajo",
-            quoteType = QuoteType.WORK
-        ),
-        Quote(
-            hour = "09:30",
-            note = "Cena con amigos",
-            quoteType = QuoteType.FRIEND
-    ))
-    DayScreen(day = Day(1, "2022-10-10", listQuote), padding = PaddingValues(0.dp))
+fun DayScreenPreview() {
+    QuoteItem( quote = Quote("10:00", "Cita 1", QuoteType.PERSONAL), onUpdateClick = {}, onDeleteClick = {})
 }
