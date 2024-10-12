@@ -13,7 +13,8 @@ fun Quote.toLocalQuote(day: String): LocalQuote {
         hour = hour,
         quote = note,
         typeQuote = quoteType.toConvertName(),
-        dayId = day
+        dayId = day,
+        alarm = isAlarm
     )
 }
 
@@ -24,9 +25,9 @@ fun String.toLocalDay(): LocalDay {
 private fun QuoteType.toConvertName(): String {
     return when (this) {
         PERSONAL -> "Personal"
-        FAMILY -> "Familiar"
-        FRIEND -> "Amigos"
-        WORK -> "Trabajo"
+        FAMILIAR -> "Familiar"
+        AMISTAD -> "Amigos"
+        TRABAJO -> "Trabajo"
     }
 }
 
@@ -52,9 +53,9 @@ fun parseIdRelation(idRelation: String): Triple<Int, String, Int> {
 fun LocalQuote.toQuote(): Quote {
     val quoteType = when(typeQuote) {
         "Personal" -> PERSONAL
-        "Familiar" -> FAMILY
-        "Amigos" -> FRIEND
-        "Trabajo" -> WORK
+        "Familiar" -> FAMILIAR
+        "Amigos" -> AMISTAD
+        "Trabajo" -> TRABAJO
         else -> PERSONAL
     }
     return Quote(

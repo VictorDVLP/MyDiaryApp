@@ -274,9 +274,9 @@ fun CircleTypeQuote(quoteTypeQuote: List<Quote>) {
                 drawCircle(
                     color = when (quote) {
                         QuoteType.PERSONAL -> Color.Green
-                        QuoteType.FAMILY -> Color.Blue
-                        QuoteType.FRIEND -> Color.Yellow
-                        QuoteType.WORK -> Color.Red
+                        QuoteType.FAMILIAR -> Color.Blue
+                        QuoteType.AMISTAD -> Color.Yellow
+                        QuoteType.TRABAJO -> Color.Red
                     },
                     radius = size.minDimension / 2f,
                     center = Offset(size.width / 2f, size.height / 2f)
@@ -298,25 +298,25 @@ fun MonthScreenPreview() {
                     "1-Enero-2024",
                     listOf(
                         Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.WORK),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILY),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FRIEND)
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
                     )
                 ),
                 Day(
                     2, "2-Enero-2024", listOf(
                         Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.WORK),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILY),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FRIEND)
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
                     )
                 ),
                 Day(
                     3, "3-Enero-2024", listOf(
                         Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.WORK),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILY),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FRIEND)
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
                     )
                 ),
                 Day(4, "4-Enero-2024"),
@@ -326,18 +326,18 @@ fun MonthScreenPreview() {
                 Day(
                     8, "8-Enero-2024", listOf(
                         Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.WORK),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILY),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FRIEND)
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
                     )
                 ),
                 Day(9, "9-Enero-2024"),
                 Day(
                     10, "10-Enero-2024", listOf(
                         Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.WORK),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILY),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FRIEND)
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
                     )
                 ),
                 Day(11, "11-Enero-2024"),
@@ -352,9 +352,9 @@ fun MonthScreenPreview() {
                 Day(
                     20, "20-Enero-2024", listOf(
                         Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.WORK),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILY),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FRIEND)
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
+                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
                     )
                 ),
                 Day(21, "21-Enero-2024"),

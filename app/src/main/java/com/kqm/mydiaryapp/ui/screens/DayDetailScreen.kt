@@ -140,9 +140,9 @@ fun QuoteItem(quote: Quote, onUpdateClick: () -> Unit, onDeleteClick: (Quote) ->
                     color =
                     when (quote.quoteType) {
                         QuoteType.PERSONAL -> Color.Green
-                        QuoteType.FAMILY -> Color.Blue
-                        QuoteType.FRIEND -> Color.Yellow
-                        QuoteType.WORK -> Color.Red
+                        QuoteType.FAMILIAR -> Color.Blue
+                        QuoteType.AMISTAD -> Color.Yellow
+                        QuoteType.TRABAJO -> Color.Red
                     },
                     shape = CircleShape
                 )
