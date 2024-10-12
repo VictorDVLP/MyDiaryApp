@@ -299,9 +299,9 @@ fun CircleTypeQuote(quoteTypeQuote: List<Quote>) {
                 drawCircle(
                     color = when (quote) {
                         QuoteType.PERSONAL -> Color.Green
-                        QuoteType.FAMILY -> Color.Blue
-                        QuoteType.FRIEND -> Color.Yellow
-                        QuoteType.WORK -> Color.Red
+                        QuoteType.FAMILIAR -> Color.Blue
+                        QuoteType.AMISTAD -> Color.Yellow
+                        QuoteType.TRABAJO -> Color.Red
                     },
                     radius = size.minDimension / 2f,
                     center = Offset(size.width / 2f, size.height / 2f)

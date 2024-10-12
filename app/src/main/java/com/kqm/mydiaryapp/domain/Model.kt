@@ -1,9 +1,17 @@
 package com.kqm.mydiaryapp.domain
 
-data class Quote(val hour: String, val note: String, val quoteType: QuoteType)
+import com.kqm.mydiaryapp.framework.parseIdRelation
+import java.time.LocalDate
+
+data class Quote(
+    val hour: String,
+    val note: String,
+    val quoteType: QuoteType,
+    var isAlarm: Boolean = false
+)
 
 enum class QuoteType {
-    FAMILY, PERSONAL, FRIEND, WORK
+    FAMILIAR, PERSONAL, AMISTAD, TRABAJO
 }
 
 data class Day(
