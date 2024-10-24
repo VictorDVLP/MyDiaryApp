@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,24 +15,23 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.NoInspectorInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.kqm.mydiaryapp.domain.Year
+import androidx.paging.LoadState
 import com.kqm.mydiaryapp.ui.viewmodel.ResultCall
 
 @Composable
-fun ErrorScreen(state: ResultCall<List<Year>>, onBack: () -> Unit) {
+fun <T> ErrorScreen(state: T, onBack: () -> Unit) {
+
+    val errorMessage = when (state) {
+        is ResultCall.Error -> (state as ResultCall.Error).error.message
+        is LoadState.Error -> (state as LoadState.Error).error.message
+        else -> "Unknown error"
+    }
 
     Column(
         modifier = Modifier
@@ -50,7 +48,7 @@ fun ErrorScreen(state: ResultCall<List<Year>>, onBack: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Ups! Algo salió mal. \n${(state as ResultCall.Error).error.message}",
+            text = "Ups! Algo salió mal. \n$errorMessage",
             textAlign = TextAlign.Center,
             color = Color.DarkGray,
         )
