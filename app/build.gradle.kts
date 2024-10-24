@@ -62,6 +62,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //Pagination
+    implementation(libs.pagination.runtime)
+    implementation(libs.pagination.compose)
+
     //Retrofit
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
