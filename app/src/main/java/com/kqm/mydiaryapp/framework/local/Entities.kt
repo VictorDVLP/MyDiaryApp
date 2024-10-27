@@ -11,7 +11,8 @@ data class LocalQuote(
     @ColumnInfo(name = "hour") val hour: String,
     @ColumnInfo(name = "note") val quote: String,
     @ColumnInfo(name = "type") val typeQuote: String,
-    @ColumnInfo(name = "idRelation") val dayId: String
+    @ColumnInfo(name = "idRelation") val dayId: String,
+    @ColumnInfo(name = "isAlarm") val alarm: Boolean
 )
 
 @Entity(tableName = "days")

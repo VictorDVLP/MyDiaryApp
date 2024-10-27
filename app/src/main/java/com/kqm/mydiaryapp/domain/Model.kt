@@ -1,8 +1,5 @@
 package com.kqm.mydiaryapp.domain
 
-import com.kqm.mydiaryapp.framework.parseIdRelation
-import java.time.LocalDate
-
 data class Quote(val hour: String, val note: String, val quoteType: QuoteType)
 
 enum class QuoteType {
