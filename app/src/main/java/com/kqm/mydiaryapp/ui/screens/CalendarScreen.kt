@@ -30,7 +30,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,10 +38,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Month
 import com.kqm.mydiaryapp.domain.Quote
@@ -51,7 +53,7 @@ import com.kqm.mydiaryapp.domain.Year
 import com.kqm.mydiaryapp.ui.screens.common.ErrorScreen
 import com.kqm.mydiaryapp.ui.screens.common.LoadingScreen
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
-import com.kqm.mydiaryapp.ui.viewmodel.ResultCall
+import java.time.LocalDate
 
 @Composable
 fun CalendarScreen(
@@ -60,19 +62,28 @@ fun CalendarScreen(
     onBack: () -> Unit
 ) {
 
-    val state = viewModel.calendarWithQuotes.collectAsState().value
+    val lazyPagingItems = viewModel.calendarWithQuotes.collectAsLazyPagingItems()
+    val currentMonthIndex = LocalDate.now().month.value - 1
 
     Scaffold { innerPadding ->
-        when (state) {
-            is ResultCall.Success -> YearPager(
-                years = state.value.first,
-                initialPosition = state.value.second,
-                onNavigateToDay = onNavigateToDay,
-                paddingValues = innerPadding
-            )
+        when (lazyPagingItems.loadState.refresh) {
+            is LoadState.Loading -> {
+                LoadingScreen()
+            }
 
-            is ResultCall.Loading -> LoadingScreen()
-            is ResultCall.Error -> ErrorScreen(state = state, onBack = { onBack() })
+            is LoadState.Error -> {
+                val errorState = lazyPagingItems.loadState.refresh as LoadState.Error
+                ErrorScreen(state = errorState, onBack = { onBack() })
+            }
+
+            else -> {
+                YearPager(
+                    lazyPagingItems = lazyPagingItems,
+                    positionMonth = currentMonthIndex,
+                    onNavigateToDay = onNavigateToDay,
+                    paddingValues = innerPadding
+                )
+            }
         }
     }
 }
@@ -80,32 +91,39 @@ fun CalendarScreen(
 
 @Composable
 fun YearPager(
-    years: List<Year>,
-    initialPosition: Int,
+    lazyPagingItems: LazyPagingItems<Year>,
+    positionMonth: Int,
     onNavigateToDay: (String) -> Unit,
     paddingValues: PaddingValues,
 ) {
 
-    val pagerState = rememberPagerState(initialPage = initialPosition / 12) { years.size }
+    val pagerState = rememberPagerState(pageCount = { lazyPagingItems.itemCount })
     val lazyListStates = remember { mutableStateMapOf<Int, LazyListState>() }
-
 
     HorizontalPager(
         state = pagerState,
+        beyondViewportPageCount = 2,
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
     ) { page ->
-        val lazyListState = lazyListStates.getOrPut(page) {
-            rememberLazyListState()
+        val year = lazyPagingItems[page]
+        if (year != null) {
+
+            val lazyListState = lazyListStates.getOrPut(page) {
+                rememberLazyListState()
+            }
+            YearView(
+                year = year,
+                onNavigateToDay = onNavigateToDay,
+                modifier = Modifier.fillMaxWidth(),
+                lazyListState = lazyListState,
+                initialMonth = positionMonth
+            )
+        } else {
+            LoadingScreen()
         }
-        YearView(
-            year = years[page],
-            onNavigateToDay = onNavigateToDay,
-            modifier = Modifier.fillMaxWidth(),
-            lazyListState = lazyListState,
-            initialPosition = initialPosition % 12
-        )
+
     }
 }
 
@@ -114,7 +132,7 @@ fun YearView(
     year: Year,
     onNavigateToDay: (String) -> Unit,
     lazyListState: LazyListState,
-    initialPosition: Int,
+    initialMonth: Int,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -132,13 +150,12 @@ fun YearView(
             months = year.months,
             onNavigateToDay = onNavigateToDay,
             lazyListState = lazyListState,
-            initialPosition = initialPosition,
             modifier = modifier
         )
 
-        LaunchedEffect(Unit) {
-            if (initialPosition < year.months.size) {
-               lazyListState.scrollToItem(initialPosition)
+        LaunchedEffect(key1 = initialMonth) {
+            if (initialMonth < year.months.size) {
+                lazyListState.scrollToItem(initialMonth)
             }
         }
     }
@@ -149,7 +166,6 @@ fun MonthList(
     months: List<Month>,
     onNavigateToDay: (String) -> Unit,
     lazyListState: LazyListState,
-    initialPosition: Int,
     modifier: Modifier = Modifier
 ) {
 
@@ -162,14 +178,21 @@ fun MonthList(
         state = lazyListState
     ) {
         items(months, key = { it.monthName }) { month ->
-            MonthView(month = month, initialPosition = initialPosition, onNavigateToDay = onNavigateToDay)
+            MonthView(
+                month = month,
+                onNavigateToDay = onNavigateToDay
+            )
             HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
         }
     }
 }
 
 @Composable
-fun MonthView(month: Month, initialPosition: Int, onNavigateToDay: (String) -> Unit, modifier: Modifier = Modifier) {
+fun MonthView(
+    month: Month,
+    onNavigateToDay: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,7 +232,6 @@ fun MonthView(month: Month, initialPosition: Int, onNavigateToDay: (String) -> U
                 CellDay(
                     day = day,
                     quotes = day.quotes,
-                    initialPosition = initialPosition,
                     onDayClick = { onNavigateToDay(day.idRelation) }
                 )
             }
@@ -221,7 +243,6 @@ fun MonthView(month: Month, initialPosition: Int, onNavigateToDay: (String) -> U
 fun CellDay(
     day: Day,
     quotes: List<Quote>,
-    initialPosition: Int,
     onDayClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -230,28 +251,32 @@ fun CellDay(
         modifier = modifier
             .padding(1.dp)
             .height(90.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (day.isCurrentDay) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onSecondary
+        )
     ) {
         Box(
             modifier = Modifier
-                .padding(4.dp)
+                .padding(2.dp)
         ) {
             Row(
                 Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Start
             ) {
-            Text(
-                text = day.day.toString(),
-                modifier = Modifier.weight(1f),
-                fontWeight = FontWeight.Bold,
-                fontSize = 19.sp
-            )
-            if (quotes.isNotEmpty()) {
-                CircleTypeQuote(
-                    quoteTypeQuote = quotes
+                Text(
+                    text = day.day.toString(),
+                    modifier = Modifier.weight(1f),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 19.sp,
+                    textAlign = TextAlign.Start
                 )
+                if (quotes.isNotEmpty()) {
+                    CircleTypeQuote(
+                        quoteTypeQuote = quotes
+                    )
+                }
             }
-        }
         }
     }
 }
@@ -274,9 +299,9 @@ fun CircleTypeQuote(quoteTypeQuote: List<Quote>) {
                 drawCircle(
                     color = when (quote) {
                         QuoteType.PERSONAL -> Color.Green
-                        QuoteType.FAMILIAR -> Color.Blue
-                        QuoteType.AMISTAD -> Color.Yellow
-                        QuoteType.TRABAJO -> Color.Red
+                        QuoteType.FAMILY -> Color.Blue
+                        QuoteType.FRIEND -> Color.Yellow
+                        QuoteType.WORK -> Color.Red
                     },
                     radius = size.minDimension / 2f,
                     center = Offset(size.width / 2f, size.height / 2f)
@@ -284,90 +309,4 @@ fun CircleTypeQuote(quoteTypeQuote: List<Quote>) {
             }
         }
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun MonthScreenPreview() {
-    MonthView(
-        Month(
-            "Enero",
-            listOf(
-                Day(
-                    1,
-                    "1-Enero-2024",
-                    listOf(
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
-                    )
-                ),
-                Day(
-                    2, "2-Enero-2024", listOf(
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
-                    )
-                ),
-                Day(
-                    3, "3-Enero-2024", listOf(
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
-                    )
-                ),
-                Day(4, "4-Enero-2024"),
-                Day(5, "5-Enero-2024"),
-                Day(6, "6-Enero-2024"),
-                Day(7, "7-Enero-2024"),
-                Day(
-                    8, "8-Enero-2024", listOf(
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
-                    )
-                ),
-                Day(9, "9-Enero-2024"),
-                Day(
-                    10, "10-Enero-2024", listOf(
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
-                    )
-                ),
-                Day(11, "11-Enero-2024"),
-                Day(12, "12-Enero-2024"),
-                Day(13, "13-Enero-2024"),
-                Day(14, "14-Enero-2024"),
-                Day(15, "15-Enero-2024"),
-                Day(16, "16-Enero-2024"),
-                Day(17, "17-Enero-2024"),
-                Day(18, "18-Enero-2024"),
-                Day(19, "19-Enero-2024"),
-                Day(
-                    20, "20-Enero-2024", listOf(
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.PERSONAL),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.TRABAJO),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.FAMILIAR),
-                        Quote(hour = "10:00", note = "Hola", quoteType = QuoteType.AMISTAD)
-                    )
-                ),
-                Day(21, "21-Enero-2024"),
-                Day(22, "22-Enero-2024"),
-                Day(23, "23-Enero-2024"),
-                Day(24, "24-Enero-2024"),
-                Day(25, "25-Enero-2024"),
-                Day(26, "26-Enero-2024"),
-                Day(27, "27-Enero-2024"),
-                Day(28, "28-Enero-2024"),
-                Day(29, "29-Enero-2024"),
-                Day(30, "30-Enero-2024"),
-                Day(31, "31-Enero-2024"),
-            )
-        ), 2 ,{})
 }
