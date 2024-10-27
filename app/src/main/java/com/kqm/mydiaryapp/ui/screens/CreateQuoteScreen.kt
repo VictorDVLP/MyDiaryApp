@@ -21,15 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerLayoutType
-import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,23 +39,27 @@ import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import kotlin.text.format
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateQuoteScreen(viewModel: CalendarViewModel = hiltViewModel(), dayId: String, onBack: () -> Unit) {
+fun CreateQuoteScreen(
+    viewModel: CalendarViewModel = hiltViewModel(),
+    dayId: String,
+    onBack: () -> Unit
+) {
 
     val timeState = remember { mutableStateOf(LocalTime.of(5, 0)) }
-    val timePickerState = rememberTimePickerState(initialHour = timeState.value.hour, initialMinute = timeState.value.minute, is24Hour = true)
-    val hour = timePickerState.hour
-    val minute = timePickerState.minute
-    val time = "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
+    val timePickerState = rememberTimePickerState(
+        initialHour = timeState.value.hour,
+        initialMinute = timeState.value.minute,
+        is24Hour = true
+    )
     val textState = remember { mutableStateOf("") }
-    val selectedQuoteType = remember { mutableStateOf( QuoteType.WORK )}
+    val selectedQuoteType = remember { mutableStateOf(QuoteType.WORK) }
 
     val quote = Quote(
-        hour = time,
+        hour = "${timePickerState.hour.toString().padStart(2, '0')
+        }:${timePickerState.minute.toString().padStart(2, '0')}",
         note = textState.value,
         quoteType = selectedQuoteType.value
     )
