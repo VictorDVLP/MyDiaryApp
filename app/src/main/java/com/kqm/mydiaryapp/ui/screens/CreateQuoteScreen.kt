@@ -1,6 +1,5 @@
 package com.kqm.mydiaryapp.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,13 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,7 +37,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
-import com.kqm.mydiaryapp.notification.startNotification
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
 import java.time.LocalTime
 
@@ -54,25 +48,20 @@ fun CreateQuoteScreen(
     onBack: () -> Unit
 ) {
 
-    val context = LocalContext.current
     val timeState = remember { mutableStateOf(LocalTime.of(5, 0)) }
     val timePickerState = rememberTimePickerState(
         initialHour = timeState.value.hour,
         initialMinute = timeState.value.minute,
         is24Hour = true
     )
-    val hour = timePickerState.hour
-    val minute = timePickerState.minute
-    val time = "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
     val textState = remember { mutableStateOf("") }
-    val selectedQuoteType = remember { mutableStateOf(QuoteType.TRABAJO) }
-    val alarm = remember { mutableStateOf(false) }
+    val selectedQuoteType = remember { mutableStateOf(QuoteType.WORK) }
 
     val quote = Quote(
-        hour = time,
+        hour = "${timePickerState.hour.toString().padStart(2, '0')
+        }:${timePickerState.minute.toString().padStart(2, '0')}",
         note = textState.value,
-        quoteType = selectedQuoteType.value,
-        isAlarm = alarm.value
+        quoteType = selectedQuoteType.value
     )
 
     Scaffold(
@@ -93,8 +82,7 @@ fun CreateQuoteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState()),
+                .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TimePicker(
@@ -114,17 +102,6 @@ fun CreateQuoteScreen(
                 label = { Text("Evento, cita, reunión...") },
                 modifier = Modifier.fillMaxWidth()
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Recordarme este evento 24hs antes:", fontSize = 16.sp)
-                Checkbox(checked = alarm.value, onCheckedChange = { alarm.value = it })
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -161,12 +138,7 @@ fun CreateQuoteScreen(
                 Spacer(modifier = Modifier.height(22.dp))
 
                 Button(
-                    onClick = {
-                        viewModel.addQuote(dayId, quote)
-                        if (alarm.value) {
-                            startNotification(context, dayId, timePickerState, textState.value)
-                        }
-                    },
+                    onClick = { viewModel.addQuote(dayId, quote) },
                     elevation = ButtonDefaults.buttonElevation(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
