@@ -25,11 +25,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -109,6 +111,9 @@ fun DayScreen(
 
 @Composable
 fun QuoteItem(quote: Quote, onUpdateClick: () -> Unit, onDeleteClick: (Quote) -> Unit) {
+
+    var openDialog by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,8 +133,11 @@ fun QuoteItem(quote: Quote, onUpdateClick: () -> Unit, onDeleteClick: (Quote) ->
         IconButton(modifier = Modifier.weight(0.1f), onClick = { onUpdateClick() }) {
             Icon(Icons.Filled.Create, contentDescription = "Add Quote")
         }
-        IconButton(modifier = Modifier.weight(0.1f), onClick = { onDeleteClick(quote) }) {
+        IconButton(modifier = Modifier.weight(0.1f), onClick = { openDialog = true }) {
             Icon(Icons.Filled.Delete, contentDescription = "Delete Quote")
+            if (openDialog) {
+                DialogView(quoteNote = quote.note, onDismiss = { openDialog = false }, onConfirm = { onDeleteClick(quote) })
+            }
         }
         Box(
             modifier = Modifier
@@ -151,10 +159,4 @@ fun QuoteItem(quote: Quote, onUpdateClick: () -> Unit, onDeleteClick: (Quote) ->
     HorizontalDivider(
         color = Color.Gray
     )
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun DayScreenPreview() {
-    QuoteItem( quote = Quote("10:00", "Cita 1", QuoteType.PERSONAL), onUpdateClick = {}, onDeleteClick = {})
 }
