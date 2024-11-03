@@ -10,6 +10,7 @@ import com.kqm.mydiaryapp.framework.local.LocalQuote
 
 fun Quote.toLocalQuote(day: String): LocalQuote {
     return LocalQuote(
+        id = id,
         hour = hour,
         quote = note,
         typeQuote = quoteType.toConvertName(),
@@ -59,6 +60,7 @@ fun LocalQuote.toQuote(): Quote {
         else -> PERSONAL
     }
     return Quote(
+        id = id,
         hour = hour,
         note = quote,
         quoteType = quoteType

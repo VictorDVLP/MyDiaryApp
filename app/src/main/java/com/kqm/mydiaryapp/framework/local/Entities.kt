@@ -6,8 +6,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-@Entity(tableName = "quotes", primaryKeys = ["hour", "idRelation"])
+@Entity(tableName = "quotes", primaryKeys = ["id", "idRelation"])
 data class LocalQuote(
+    @ColumnInfo(name = "id") val id: Int,
     @ColumnInfo(name = "hour") val hour: String,
     @ColumnInfo(name = "note") val quote: String,
     @ColumnInfo(name = "type") val typeQuote: String,

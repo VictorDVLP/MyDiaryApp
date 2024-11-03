@@ -8,8 +8,10 @@ import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.Year
 import com.kqm.mydiaryapp.usecases.AddQuoteUseCase
 import com.kqm.mydiaryapp.usecases.DeleteQuoteUseCase
-import com.kqm.mydiaryapp.usecases.GetDateByIdUseCase
 import com.kqm.mydiaryapp.usecases.GetDatesUseCase
+import com.kqm.mydiaryapp.usecases.GetQuoteByIdUseCases
+import com.kqm.mydiaryapp.usecases.GetQuotesForDayUseCase
+import com.kqm.mydiaryapp.usecases.UpdateQuoteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,19 +21,30 @@ import javax.inject.Inject
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
     getDatesUseCase: GetDatesUseCase,
-    private val getDateByIdUseCase: GetDateByIdUseCase,
+    private val getQuotesForDayUseCase: GetQuotesForDayUseCase,
     private val addQuoteUseCase: AddQuoteUseCase,
-    private val deleteQuoteUseCase: DeleteQuoteUseCase
+    private val updateQuoteUseCases: UpdateQuoteUseCases,
+    private val deleteQuoteUseCase: DeleteQuoteUseCase,
+    private val getQuoteByIdUseCases: GetQuoteByIdUseCases
 ) : ViewModel() {
 
     val calendarWithQuotes: Flow<PagingData<Year>> = getDatesUseCase()
 
     fun getQuotesOfDay(dayId: String): StateFlow<ResultCall<Day>> =
-        getDateByIdUseCase(dayId).stateAsResultIn(viewModelScope)
+        getQuotesForDayUseCase(dayId).stateAsResultIn(viewModelScope)
+
+    fun getQuoteById(id: Int, dayId: String): StateFlow<ResultCall<Quote>> =
+        getQuoteByIdUseCases(id, dayId).stateAsResultIn(viewModelScope)
 
     fun addQuote(dayId: String, quote: Quote) {
         viewModelScope.launch {
             addQuoteUseCase(day = dayId, quote = quote)
+        }
+    }
+
+    fun updateQuote(dayId: String, quote: Quote) {
+        viewModelScope.launch {
+            updateQuoteUseCases(day = dayId, quote = quote)
         }
     }
 

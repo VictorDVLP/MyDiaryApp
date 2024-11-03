@@ -5,6 +5,7 @@ import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.framework.local.DayDao
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -23,8 +24,18 @@ class QuoteDataSourceImpl @Inject constructor(private val dao: DayDao) : QuoteDa
         }
     }
 
+    override fun getQuoteById(quoteId: Int, dayId: String): Flow<Quote> {
+        return dao.getQuoteById(quoteId, dayId).map { it.toQuote() }
+    }
+
     override suspend fun insertQuote(day: String, quote: Quote) {
-        dao.inserts( date = day.toLocalDay(), quotes = quote.toLocalQuote(day = day))
+        val lastId = dao.getLastQuotesIdForDay(day).first() + 1
+        val quoteId = quote.copy(id = lastId)
+        dao.inserts( date = day.toLocalDay(), quotes = quoteId.toLocalQuote(day = day))
+    }
+
+    override suspend fun updateQuote(day: String, quote: Quote) {
+        dao.updateQuote(quote = quote.toLocalQuote(day = day))
     }
 
     override suspend fun deleteQuote(quote: Quote, day: String) {

@@ -9,6 +9,10 @@ interface QuoteDataSource {
 
     fun getQuotesOfDay(dayId: String): Flow<Day>
 
+    fun getQuoteById(quoteId: Int, dayId: String): Flow<Quote>
+
+    suspend fun updateQuote(day: String, quote: Quote)
+
     suspend fun insertQuote(day: String, quote: Quote)
 
     suspend fun deleteQuote(quote: Quote, day: String)

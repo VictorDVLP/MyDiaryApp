@@ -8,7 +8,6 @@ import com.kqm.mydiaryapp.data.pagination.CalendarPagingSource
 import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.Year
-import com.kqm.mydiaryapp.framework.CalendarDataSourceImpl
 import com.kqm.mydiaryapp.framework.QuoteDataSourceImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +35,7 @@ class CalendarRepository @Inject constructor(
     }
 
     private fun Year.addQuotesToDays(quotes: List<Day>): Year {
-        val quotesMap = quotes.associateBy { it.idRelation } // Mapear por idRelation
+        val quotesMap = quotes.associateBy { it.idRelation }
         return this.copy(months = this.months.map { month ->
             month.copy(days = month.days.map { day ->
                 val dayQuotesId = day.idRelation
@@ -46,18 +45,25 @@ class CalendarRepository @Inject constructor(
         })
     }
 
-    fun quotesForDay(dayId: String): Flow<Day> { return quotesDataSource.getQuotesOfDay(dayId)
-        .map { dayWithQuotes ->
-            dayWithQuotes.let {
-                it.copy(quotes = it.quotes.sortedBy { quote -> quote.hour
-                })
+    fun quotesForDay(dayId: String): Flow<Day> {
+        return quotesDataSource.getQuotesOfDay(dayId)
+            .map { dayWithQuotes ->
+                dayWithQuotes.let {
+                    it.copy(quotes = it.quotes.sortedBy { quote ->
+                        quote.hour
+                    })
+                }
             }
-        }
     }
 
-    suspend fun insertQuote(day: String, quote: Quote) {
+    fun getQuoteById(id: Int, dayId: String): Flow<Quote> =
+        quotesDataSource.getQuoteById(id, dayId)
+
+    suspend fun insertQuote(day: String, quote: Quote) =
         quotesDataSource.insertQuote(day = day, quote = quote)
-    }
+
+    suspend fun updateQuote(day: String, quote: Quote) =
+        quotesDataSource.updateQuote(day = day, quote = quote)
 
     suspend fun deleteQuote(quote: Quote, day: String) =
         quotesDataSource.deleteQuote(quote = quote, day = day)

@@ -48,7 +48,7 @@ import com.kqm.mydiaryapp.ui.viewmodel.ResultCall
 fun DayDetailScreen(
     viewModel: CalendarViewModel = hiltViewModel(),
     dayId: String,
-    onNavigateQuote: () -> Unit,
+    onNavigateQuote: (String, Int?) -> Unit,
     onBack: () -> Unit
 ) {
 
@@ -67,7 +67,7 @@ fun DayDetailScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateQuote() }) {
+            FloatingActionButton(onClick = { onNavigateQuote(dayId, null) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Quote")
             }
         }
@@ -77,7 +77,7 @@ fun DayDetailScreen(
                 DayScreen(
                     day = day.value,
                     padding = innerPadding,
-                    updateQuote = { onNavigateQuote() },
+                    updateQuote = { dayId, quoteId -> onNavigateQuote(dayId, quoteId) } ,
                     deleteQuote = viewModel::deleteQuote
                 )
 
@@ -94,14 +94,14 @@ fun DayDetailScreen(
 fun DayScreen(
     day: Day,
     padding: PaddingValues,
-    updateQuote: () -> Unit,
+    updateQuote: (String, Int) -> Unit,
     deleteQuote: (Quote, String) -> Unit
 ) {
     LazyColumn(modifier = Modifier.padding(padding)) {
         items(day.quotes) { quote ->
             QuoteItem(
                 quote = quote,
-                onUpdateClick = { updateQuote() },
+                onUpdateClick = { updateQuote(day.idRelation, quote.id) },
                 onDeleteClick = { deleteQuote(quote, day.idRelation) }
             )
         }

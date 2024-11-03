@@ -16,7 +16,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,8 +31,12 @@ import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +51,7 @@ import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.QuoteType
 import com.kqm.mydiaryapp.notification.startNotification
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
+import com.kqm.mydiaryapp.ui.viewmodel.ResultCall
 import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,27 +59,33 @@ import java.time.LocalTime
 fun CreateQuoteScreen(
     viewModel: CalendarViewModel = hiltViewModel(),
     dayId: String,
+    quoteId: Int?,
     onBack: () -> Unit
 ) {
 
+    val state = rememberCreateQuoteState(dayId, quoteId)
+
+    val isUpdating = quoteId != null
+
     val context = LocalContext.current
-    val timeState = remember { mutableStateOf(LocalTime.of(5, 0)) }
+
     val timePickerState = rememberTimePickerState(
-        initialHour = timeState.value.hour,
-        initialMinute = timeState.value.minute,
+        initialHour = state.timeState.hour,
+        initialMinute = state.timeState.minute,
         is24Hour = true
     )
-    val textState = remember { mutableStateOf("") }
-    val selectedQuoteType = remember { mutableStateOf(QuoteType.TRABAJO) }
-    val alarm = remember { mutableStateOf(false) }
+
+    UpdateQuoteState(viewModel, dayId, quoteId, timePickerState, state)
 
     val quote = Quote(
+        id = state.idState,
         hour = "${timePickerState.hour.toString().padStart(2, '0')
         }:${timePickerState.minute.toString().padStart(2, '0')}",
-        note = textState.value,
-        quoteType = selectedQuoteType.value,
-        isAlarm = alarm.value
+        note = state.textState,
+        quoteType = state.selectedQuoteType,
+        isAlarm = state.alarm
     )
+
 
     Scaffold(
         topBar = {
@@ -111,10 +121,12 @@ fun CreateQuoteScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             OutlinedTextField(
-                value = textState.value,
-                onValueChange = { textState.value = it },
+                value = state.textState,
+                onValueChange = { state.textState = it },
                 label = { Text("Evento, cita, reunión...") },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -126,9 +138,9 @@ fun CreateQuoteScreen(
             ) {
                 Text(text = "Recordarme este evento 24hs antes:", fontSize = 16.sp)
                 Switch(
-                    checked = alarm.value,
-                    onCheckedChange = { alarm.value = it },
-                    thumbContent = if (alarm.value) {
+                    checked = state.alarm,
+                    onCheckedChange = { state.alarm = it },
+                    thumbContent = if (state.alarm) {
                         {
                             Icon(
                                 imageVector = Icons.Filled.Check,
@@ -160,8 +172,8 @@ fun CreateQuoteScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             RadioButton(
-                                selected = selectedQuoteType.value == quoteType,
-                                onClick = { selectedQuoteType.value = quoteType }
+                                selected = state.selectedQuoteType == quoteType,
+                                onClick = { state.selectedQuoteType = quoteType }
                             )
                             Text(
                                 text = quoteType.name,
@@ -169,7 +181,7 @@ fun CreateQuoteScreen(
                                 maxLines = 1,
                                 overflow = TextOverflow.Visible,
                                 fontStyle = FontStyle.Italic,
-                                fontWeight = if (selectedQuoteType.value == quoteType) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (state.selectedQuoteType == quoteType) FontWeight.Bold else FontWeight.Normal
                             )
                         }
                     }
@@ -178,9 +190,16 @@ fun CreateQuoteScreen(
 
                 Button(
                     onClick = {
-                        viewModel.addQuote(dayId, quote)
-                        if (alarm.value) {
-                            startNotification(context, dayId, timePickerState, textState.value)
+                        if (isUpdating) {
+                            viewModel.updateQuote(
+                                dayId,
+                                quote
+                            )
+                        } else {
+                            viewModel.addQuote(dayId, quote)
+                        }
+                        if (state.alarm) {
+                            startNotification(context, dayId, timePickerState, state.textState)
                         }
                     },
                     elevation = ButtonDefaults.buttonElevation(10.dp),

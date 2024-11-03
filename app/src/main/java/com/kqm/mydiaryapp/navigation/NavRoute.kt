@@ -9,7 +9,7 @@ object CalendarScreen
 data class DayDetailScreen(val dayCalendar: String)
 
 @Serializable
-data class QuoteScreen(val dayCalendar: String)
+data class QuoteScreen(val dayCalendar: String, val quoteId: Int?)
 
 @Serializable
 object NewsScreen

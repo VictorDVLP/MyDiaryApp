@@ -4,6 +4,7 @@ import com.kqm.mydiaryapp.framework.parseIdRelation
 import java.time.LocalDate
 
 data class Quote(
+    val id : Int = 0,
     val hour: String,
     val note: String,
     val quoteType: QuoteType,

@@ -23,14 +23,15 @@ fun Navigation() {
         }
         composable<DayDetailScreen> { backStackEntry ->
             val dayCalendar = backStackEntry.toRoute<DayDetailScreen>()
-            DayDetailScreen (dayId = dayCalendar.dayCalendar,
-               onNavigateQuote =  { navController.navigate(QuoteScreen(dayCalendar.dayCalendar)) },
+            DayDetailScreen (
+                dayId = dayCalendar.dayCalendar,
+               onNavigateQuote =  { dayId, quoteId -> navController.navigate(QuoteScreen(dayId, quoteId)) },
                 onBack = { navController.popBackStack() }
             )
         }
         composable<QuoteScreen> { backStackEntry ->
             val dayDetail = backStackEntry.toRoute<QuoteScreen>()
-            CreateQuoteScreen(dayId = dayDetail.dayCalendar)
+            CreateQuoteScreen(dayId = dayDetail.dayCalendar, quoteId = dayDetail.quoteId,)
             { navController.popBackStack() }
         }
     }
