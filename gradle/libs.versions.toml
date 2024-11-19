@@ -1,25 +1,32 @@
 [versions]
-agp = "8.5.2"
-kotlin = "2.0.0"
-coreKtx = "1.13.1"
+agp = "8.7.2"
+kotlin = "2.0.21"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.6"
+lifecycleRuntimeKtx = "2.8.7"
+coroutinesCore = "1.7.3"
 activityCompose = "1.9.3"
-navigationCompose = "2.8.3"
-animationCompose = "1.7.4"
-composeBom = "2024.10.00"
-pagination = "3.3.2"
+navigationCompose = "2.8.4"
+animationCompose = "1.7.5"
+composeBom = "2024.11.00"
+pagination = "3.3.4"
 roomVersion = "2.6.1"
 retrofitVersion = "2.11.0"
 kotlinxSerialization = "1.7.0"
 hiltVersion = "2.51.1"
 hiltNavigationCompose = "1.2.0"
+jetbrainsKotlinJvm = "2.0.21"
+pagingCommonKtx = "3.3.4"
+appcompat = "1.7.0"
+material = "1.12.0"
 
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutinesCore" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesCore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -51,12 +58,17 @@ hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hi
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hiltVersion" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hiltVersion" }
+androidx-paging-common-ktx = { group = "androidx.paging", name = "paging-common-ktx", version.ref = "pagingCommonKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinXSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.21" }
+ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.25" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 
