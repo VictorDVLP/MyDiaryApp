@@ -22,10 +22,6 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
 
-    //Pagination
-//    implementation(libs.pagination.runtime)
-//    implementation(libs.pagination.compose)
-
     //Hilt
     implementation(libs.hilt.core)
     implementation(libs.androidx.paging.common.ktx)

@@ -21,8 +21,6 @@ dependencies {
     implementation(project(":feature:calendar:domain"))
     implementation(project(":feature:calendar:data"))
 
-//    implementation(libs.pagination.runtime)
-//    implementation(libs.pagination.compose)
 
     implementation(libs.hilt.core)
     implementation(libs.androidx.paging.common.ktx)

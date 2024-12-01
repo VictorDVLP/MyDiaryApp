@@ -21,6 +21,8 @@ jetbrainsKotlinJvm = "2.0.21"
 pagingCommonKtx = "3.3.4"
 appcompat = "1.7.0"
 material = "1.12.0"
+mockitoKotlin = "5.3.1"
+turbine = "1.1.0"
 
 
 [libraries]
@@ -44,8 +46,13 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
-pagination-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "pagination" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+
+pagination-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "pagination" }
 pagination-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "pagination" }
+pagination-common = { group = "androidx.paging", name = "paging-common", version.ref = "pagination" }
+pagination-testing = { group = "androidx.paging", name = "paging-testing", version.ref = "pagination" }
 
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVersion" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofitVersion" }

@@ -14,16 +14,17 @@ class CalendarPagingSource @Inject constructor(private val calendarDataSourceImp
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Year> {
-        val allYears = calendarDataSourceImpl.getRangeDates().first
-        val yearInitial = calendarDataSourceImpl.getRangeDates().second
+        val (allYears, yearInitial) = calendarDataSourceImpl.getRangeDates()
         val page = params.key ?: yearInitial
 
-        return if (page in allYears.indices) {
-            val year = allYears[page]
+        val endIndex = minOf(page + 2, allYears.size)
+
+        return if (page < allYears.size) {
+            val years = allYears.subList(page, endIndex)
             LoadResult.Page(
-                data = listOf(year),
-                prevKey = if (page > 0) page - 1 else null,
-                nextKey = if (page < allYears.size - 1) page + 1 else null
+                data = years,
+                prevKey = if (page > 0) page - 2 else null,
+                nextKey = if (endIndex < allYears.size) endIndex else null
             )
         } else {
             LoadResult.Page(

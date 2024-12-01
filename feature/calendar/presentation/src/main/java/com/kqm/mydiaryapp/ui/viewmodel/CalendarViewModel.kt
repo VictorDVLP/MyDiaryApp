@@ -1,11 +1,9 @@
 package com.kqm.mydiaryapp.ui.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Quote
 import com.kqm.mydiaryapp.domain.Year
@@ -18,6 +16,7 @@ import com.kqm.mydiaryapp.usecases.UpdateQuoteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,9 +29,6 @@ class CalendarViewModel @Inject constructor(
     private val deleteQuoteUseCase: DeleteQuoteUseCase,
     private val getQuoteByIdUseCases: GetQuoteByIdUseCases
 ) : ViewModel() {
-
-    var uiReady by mutableStateOf(false)
-        private set
 
     val calendarWithQuotes: Flow<PagingData<Year>> = getDatesUseCase()
 
@@ -58,9 +54,5 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             deleteQuoteUseCase(quote, day = dayId)
         }
-    }
-
-    fun onUiReady() {
-        uiReady = true
     }
 }

@@ -73,8 +73,7 @@ fun CalendarScreen(
                     lazyPagingItems = lazyPagingItems,
                     positionMonth = currentMonthIndex,
                     onNavigateToDay = onNavigateToDay,
-                    paddingValues = innerPadding,
-                    uiReady = { viewModel.onUiReady() },
+                    paddingValues = innerPadding
                 )
             }
         }
@@ -87,7 +86,6 @@ fun YearPager(
     lazyPagingItems: LazyPagingItems<com.kqm.mydiaryapp.domain.Year>,
     positionMonth: Int,
     onNavigateToDay: (String) -> Unit,
-    uiReady: () -> Unit,
     paddingValues: PaddingValues,
 ) {
 
@@ -112,8 +110,7 @@ fun YearPager(
                 onNavigateToDay = onNavigateToDay,
                 modifier = Modifier.fillMaxWidth(),
                 lazyListState = lazyListState,
-                initialMonth = positionMonth,
-                uiReady = uiReady
+                initialMonth = positionMonth
             )
         } else {
             LoadingScreen()
@@ -128,7 +125,6 @@ fun YearView(
     onNavigateToDay: (String) -> Unit,
     lazyListState: LazyListState,
     initialMonth: Int,
-    uiReady: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -152,7 +148,6 @@ fun YearView(
         LaunchedEffect(key1 = initialMonth) {
             if (initialMonth < year.months.size) {
                 lazyListState.scrollToItem(initialMonth)
-                uiReady()
             }
         }
     }

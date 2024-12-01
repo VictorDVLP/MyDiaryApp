@@ -23,7 +23,7 @@ class CalendarRepository @Inject constructor(
     fun getCalendarWithQuotes(): Flow<PagingData<Year>> {
         return Pager(
             config = PagingConfig(pageSize = 3, initialLoadSize = 2, prefetchDistance = 1),
-            pagingSourceFactory = { calendarPagingSource },
+            pagingSourceFactory = { calendarPagingSource }
         ).flow.flatMapLatest { pagingData ->
             quotesDataSource.getQuotes().map { quotes ->
                 pagingData.map { year ->
@@ -33,7 +33,7 @@ class CalendarRepository @Inject constructor(
         }
     }
 
-    private fun Year.addQuotesToDays(quotes: List<Day>): Year {
+     private fun Year.addQuotesToDays(quotes: List<Day>): Year {
         val quotesMap = quotes.associateBy { it.idRelation }
         return this.copy(months = this.months.map { month ->
             month.copy(days = month.days.map { day ->
