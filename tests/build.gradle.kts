@@ -40,19 +40,32 @@ dependencies {
     testImplementation(project(":feature:calendar:usecases"))
     testImplementation(project(":feature:calendar:framework"))
     testImplementation(project(":feature:calendar:data"))
+    androidTestImplementation(project(":feature:calendar:presentation"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.paging.common.ktx)
+    implementation(libs.pagination.runtime.ktx)
 
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(libs.pagination.common)
     testImplementation(libs.androidx.paging.common.ktx)
     testImplementation(libs.pagination.testing)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.rules)
+//    androidTestImplementation(libs.androidx.ui.test.manifest)
+
+//    debugImplementation(libs.androidx.ui.test.manifest)
 }
