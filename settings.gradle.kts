@@ -21,4 +21,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "MyDiaryApp"
 include(":app")
- 
+include(":feature:calendar:domain")
+include(":feature:calendar:data")
+include(":feature:calendar:framework")
+include(":feature:calendar:usecases")
+include(":feature:calendar:presentation")
+include(":feature:notification")
+include(":tests")

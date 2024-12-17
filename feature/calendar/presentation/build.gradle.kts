@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlinXSerialization)
     alias(libs.plugins.compose.compiler)
@@ -12,16 +12,10 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.kqm.mydiaryapp"
         minSdk = 27
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -40,25 +34,18 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    buildFeatures {
-        compose = true
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
 }
 
 dependencies {
 
     implementation(project(":feature:notification"))
-    implementation(project(":feature:calendar:presentation"))
+    implementation(project(":feature:calendar:domain"))
     implementation(project(":feature:calendar:usecases"))
     implementation(project(":feature:calendar:framework"))
-    implementation(project(":feature:calendar:domain"))
     implementation(project(":feature:calendar:data"))
 
+    implementation(libs.material)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -69,10 +56,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    //Retrofit
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
-
     implementation(libs.hilt.android)
     implementation(libs.hilt.core)
     implementation(libs.androidx.hilt.navigation.compose)
@@ -80,15 +63,11 @@ dependencies {
 
     implementation(libs.pagination.compose)
 
-    //Navigation
+    implementation(libs.kotlinx.serialization.json)
+
     implementation(libs.androidx.navigation.compose)
 
-    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 }
