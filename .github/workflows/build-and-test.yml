@@ -20,6 +20,9 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v3.5.0
+
+    - name: Fix Gradle Wrapper Permissions
+      run: chmod +x gradlew
       
     - name: Build project
       run: ./gradlew build
