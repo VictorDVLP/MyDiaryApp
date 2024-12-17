@@ -33,7 +33,7 @@ class CalendarPagingSourceTest {
     fun `load returns a page when on success full load of item keyed data`() = runTest {
 
         val yearTest = createYear(false)
-        whenever(calendarDataSource. getRangeDates( ) ) . thenReturn( Pair( yearTest, 1))
+        whenever(calendarDataSource. getRangeDates( ) ) . thenReturn( yearTest)
 
         val result = LoadResult.Page(data = yearTest.subList(0, 2), prevKey = null, nextKey = 2)
 
@@ -46,7 +46,7 @@ class CalendarPagingSourceTest {
     fun `load returns next page when given a next key`() = runTest {
 
         val yearTest = createYear(false)
-        whenever(calendarDataSource. getRangeDates( ) ) . thenReturn( Pair( yearTest, 1))
+        whenever(calendarDataSource. getRangeDates( ) ) . thenReturn(yearTest)
 
         calendarPagingSourceTest.load( PagingSource.LoadParams.Refresh( 0,  1, false))
 

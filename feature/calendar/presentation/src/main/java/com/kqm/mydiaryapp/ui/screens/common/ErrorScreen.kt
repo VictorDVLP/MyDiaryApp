@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -56,7 +57,8 @@ fun <T> ErrorScreen(state: T, onBack: () -> Unit) {
         Button(
             onClick = { onBack() },
             modifier = Modifier
-                .clip(RoundedCornerShape(16.dp)),
+                .clip(RoundedCornerShape(16.dp))
+                .testTag("Back"),
             colors = ButtonDefaults.buttonColors(Color.Blue)
         ) {
             Text("Reintentar", color = Color.White)

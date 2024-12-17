@@ -20,7 +20,7 @@ fun buildCalendarRepository(calendar: List<Year>, quotes: List<Day>): CalendarRe
 
 class FakeCalendarDataSource(private val inMemoryCalendar: List<Year>) : CalendarDataSource {
 
-    override fun getRangeDates(): Pair<List<Year>, Int> = Pair(inMemoryCalendar, 0)
+    override fun getRangeDates(centerYear: Int): List<Year> = inMemoryCalendar
 }
 
 class FakeQuotesDataSource : QuoteDataSource {

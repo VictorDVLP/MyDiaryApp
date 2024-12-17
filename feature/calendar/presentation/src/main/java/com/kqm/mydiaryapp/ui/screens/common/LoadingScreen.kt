@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -57,6 +57,7 @@ fun LoadingScreen() {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
+            .testTag("LoadingScreen")
     ) {
         CircularProgressIndicator(
             progress = { 1f },
@@ -75,10 +76,4 @@ fun LoadingScreen() {
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun LoadingScreenPreview() {
-    LoadingScreen()
 }
