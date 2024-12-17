@@ -5,23 +5,20 @@ import com.kqm.mydiaryapp.data.CalendarDataSource
 import com.kqm.mydiaryapp.domain.Day
 import com.kqm.mydiaryapp.domain.Month
 import com.kqm.mydiaryapp.domain.Year
-import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
 import androidx.compose.ui.text.intl.Locale as ILocale
 
-const val YEAR_AGO = 0
-const val YEAR_NEXT = 5
-
 class CalendarDataSourceImpl @Inject constructor() : CalendarDataSource {
 
     private val monthFormatter = DateTimeFormatter.ofPattern("MMMM", Locale("es", "ES"))
 
-    override fun getRangeDates(): Pair<List<Year>, Int> {
-        val now = LocalDate.now()
-        val years = (now.year - YEAR_AGO..now.year + YEAR_NEXT).map { year ->
+    override fun getRangeDates(centerYear: Int): List<Year> {
+        val startYear = centerYear - 1
+        val endYear = centerYear + 5
+        val years = (startYear..endYear).map { year ->
             Year(
                 year = year,
                 months = (1..12).map { month ->
@@ -29,9 +26,7 @@ class CalendarDataSourceImpl @Inject constructor() : CalendarDataSource {
                 }
             )
         }
-        val initialPosition = years.indexOfFirst { it.year == now.year }
-
-        return Pair(years, initialPosition)
+        return years
     }
 
     private fun createMonth(year: Int, month: Int): Month {
