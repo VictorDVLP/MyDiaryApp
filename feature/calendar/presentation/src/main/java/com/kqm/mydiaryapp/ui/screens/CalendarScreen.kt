@@ -32,11 +32,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.kqm.mydiaryapp.domain.Day
+import com.kqm.mydiaryapp.domain.Month
+import com.kqm.mydiaryapp.domain.Quote
+import com.kqm.mydiaryapp.domain.QuoteType.AMISTAD
+import com.kqm.mydiaryapp.domain.QuoteType.FAMILIAR
+import com.kqm.mydiaryapp.domain.QuoteType.PERSONAL
+import com.kqm.mydiaryapp.domain.QuoteType.TRABAJO
+import com.kqm.mydiaryapp.domain.Year
 import com.kqm.mydiaryapp.ui.screens.common.ErrorScreen
 import com.kqm.mydiaryapp.ui.screens.common.LoadingScreen
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
@@ -56,11 +66,29 @@ fun CalendarScreen(
     onNavigateToDay: (String) -> Unit,
     onBack: () -> Unit
 ) {
-
     val lazyPagingItems = viewModel.calendarWithQuotes.collectAsLazyPagingItems()
     val currentMonthIndex = LocalDate.now().month.value - 1
 
-    Scaffold { innerPadding ->
+    CalendarScreen(
+        lazyPagingItems = lazyPagingItems,
+        currentMonthIndex = currentMonthIndex,
+        onNavigateToDay = onNavigateToDay,
+        onBack = onBack
+    )
+}
+
+@Composable
+fun CalendarScreen(
+    lazyPagingItems: LazyPagingItems<Year>,
+    currentMonthIndex: Int,
+    onNavigateToDay: (String) -> Unit,
+    onBack: () -> Unit
+) {
+
+    Scaffold(
+        modifier = Modifier.
+        testTag("CalendarScreen")
+    ) { innerPadding ->
         when (lazyPagingItems.loadState.refresh) {
 
             is LoadState.Error -> {
@@ -83,13 +111,13 @@ fun CalendarScreen(
 
 @Composable
 fun YearPager(
-    lazyPagingItems: LazyPagingItems<com.kqm.mydiaryapp.domain.Year>,
+    lazyPagingItems: LazyPagingItems<Year>,
     positionMonth: Int,
     onNavigateToDay: (String) -> Unit,
     paddingValues: PaddingValues,
 ) {
 
-    val pagerState = rememberPagerState(pageCount = { lazyPagingItems.itemCount })
+    val pagerState = rememberPagerState(initialPage = 1, pageCount = { lazyPagingItems.itemCount })
     val lazyListStates = remember { mutableStateMapOf<Int, LazyListState>() }
 
     HorizontalPager(
@@ -121,41 +149,42 @@ fun YearPager(
 
 @Composable
 fun YearView(
-    year: com.kqm.mydiaryapp.domain.Year,
+    year: Year,
     onNavigateToDay: (String) -> Unit,
     lazyListState: LazyListState,
     initialMonth: Int,
     modifier: Modifier = Modifier
 ) {
+
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-        Text(
-            text = year.year.toString(),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        )
-        MonthList(
-            months = year.months,
-            onNavigateToDay = onNavigateToDay,
-            lazyListState = lazyListState,
-            modifier = modifier
-        )
+            Text(
+                text = year.year.toString(),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+            MonthList(
+                months = year.months,
+                onNavigateToDay = onNavigateToDay,
+                lazyListState = lazyListState,
+                modifier = modifier
+            )
 
-        LaunchedEffect(key1 = initialMonth) {
-            if (initialMonth < year.months.size) {
-                lazyListState.scrollToItem(initialMonth)
+            LaunchedEffect(key1 = initialMonth) {
+                if (initialMonth < year.months.size && year.year == LocalDate.now().year) {
+                    lazyListState.scrollToItem(initialMonth)
+                }
             }
         }
-    }
 }
 
 @Composable
 fun MonthList(
-    months: List<com.kqm.mydiaryapp.domain.Month>,
+    months: List<Month>,
     onNavigateToDay: (String) -> Unit,
     lazyListState: LazyListState,
     modifier: Modifier = Modifier
@@ -181,7 +210,7 @@ fun MonthList(
 
 @Composable
 fun MonthView(
-    month: com.kqm.mydiaryapp.domain.Month,
+    month: Month,
     onNavigateToDay: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -233,8 +262,8 @@ fun MonthView(
 
 @Composable
 fun CellDay(
-    day: com.kqm.mydiaryapp.domain.Day,
-    quotes: List<com.kqm.mydiaryapp.domain.Quote>,
+    day: Day,
+    quotes: List<Quote>,
     onDayClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -242,7 +271,8 @@ fun CellDay(
         onClick = { onDayClick(day.idRelation) },
         modifier = modifier
             .padding(1.dp)
-            .height(90.dp),
+            .height(90.dp)
+            .testTag("CellDay"),
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (day.isCurrentDay) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onSecondary
@@ -275,7 +305,7 @@ fun CellDay(
 
 
 @Composable
-fun CircleTypeQuote(quoteTypeQuote: List<com.kqm.mydiaryapp.domain.Quote>) {
+fun CircleTypeQuote(quoteTypeQuote: List<Quote>) {
 
     val quotesByType =
         remember(quoteTypeQuote) { quoteTypeQuote.groupBy { it.quoteType }.keys.toList() }
@@ -290,10 +320,10 @@ fun CircleTypeQuote(quoteTypeQuote: List<com.kqm.mydiaryapp.domain.Quote>) {
             ) {
                 drawCircle(
                     color = when (quote) {
-                        com.kqm.mydiaryapp.domain.QuoteType.PERSONAL -> Color.Green
-                        com.kqm.mydiaryapp.domain.QuoteType.FAMILIAR -> Color.Blue
-                        com.kqm.mydiaryapp.domain.QuoteType.AMISTAD -> Color.Yellow
-                        com.kqm.mydiaryapp.domain.QuoteType.TRABAJO -> Color.Red
+                        PERSONAL -> Color.Green
+                        FAMILIAR -> Color.Blue
+                        AMISTAD -> Color.Yellow
+                        TRABAJO -> Color.Red
                     },
                     radius = size.minDimension / 2f,
                     center = Offset(size.width / 2f, size.height / 2f)

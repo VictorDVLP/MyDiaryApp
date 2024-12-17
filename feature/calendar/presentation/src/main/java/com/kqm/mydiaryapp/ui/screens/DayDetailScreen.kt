@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,23 +45,40 @@ import com.kqm.mydiaryapp.ui.screens.common.LoadingScreen
 import com.kqm.mydiaryapp.ui.viewmodel.CalendarViewModel
 import com.kqm.mydiaryapp.ui.viewmodel.ResultCall
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayDetailScreen(
+fun DayDetailScreen (
     viewModel: CalendarViewModel = hiltViewModel(),
     dayId: String,
     onNavigateQuote: (String, Int?) -> Unit,
     onBack: () -> Unit
 ) {
-
     val dayStateFlow = remember { viewModel.getQuotesOfDay(dayId) }
-    val day = dayStateFlow.collectAsState().value
+    val resultCall = dayStateFlow.collectAsState().value
+
+    DayScreen(
+        resultCall = resultCall,
+        dayId = dayId,
+        onNavigateQuote = onNavigateQuote,
+        onBack = onBack,
+        onDelete = viewModel::deleteQuote
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DayScreen(
+    resultCall: ResultCall<Day>,
+    dayId: String,
+    onNavigateQuote: (String, Int?) -> Unit,
+    onBack: () -> Unit,
+    onDelete: (Quote, String) -> Unit
+) {
 
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { onBack() }) {
+                    IconButton(modifier = Modifier.testTag("BackButton"), onClick = { onBack() }) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
@@ -73,32 +91,32 @@ fun DayDetailScreen(
             }
         }
     ) { innerPadding ->
-        when (day) {
+        when (resultCall) {
             is ResultCall.Success ->
-                DayScreen(
-                    day = day.value,
+                DayDetailScreen(
+                    day = resultCall.value,
                     padding = innerPadding,
                     updateQuote = { dayId, quoteId -> onNavigateQuote(dayId, quoteId) } ,
-                    deleteQuote = viewModel::deleteQuote
+                    deleteQuote = { quote, dayId -> onDelete(quote, dayId) }
                 )
 
             is ResultCall.Loading ->
                 LoadingScreen()
 
             is ResultCall.Error ->
-                ErrorScreen(state = day, onBack = { onBack() })
+                ErrorScreen(state = resultCall, onBack = { onBack() })
         }
     }
 }
 
 @Composable
-fun DayScreen(
+fun DayDetailScreen(
     day: Day,
     padding: PaddingValues,
     updateQuote: (String, Int) -> Unit,
     deleteQuote: (Quote, String) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.padding(padding)) {
+    LazyColumn(modifier = Modifier.padding(padding).testTag("DayDetailScreen")) {
         items(day.quotes) { quote ->
             QuoteItem(
                 quote = quote,
@@ -131,10 +149,10 @@ fun QuoteItem(quote: Quote, onUpdateClick: () -> Unit, onDeleteClick: (Quote) ->
             fontSize = 16.sp,
             modifier = Modifier.weight(0.6f)
         )
-        IconButton(modifier = Modifier.weight(0.1f), onClick = { onUpdateClick() }) {
+        IconButton(modifier = Modifier.weight(0.1f).testTag("UpdateQuote"), onClick = { onUpdateClick() }) {
             Icon(Icons.Filled.Create, contentDescription = "Add Quote")
         }
-        IconButton(modifier = Modifier.weight(0.1f), onClick = { openDialog = true }) {
+        IconButton(modifier = Modifier.weight(0.1f).testTag("DeleteQuote"), onClick = { openDialog = true }) {
             Icon(Icons.Filled.Delete, contentDescription = "Delete Quote")
             if (openDialog) {
                 DialogView(quoteNote = quote.note, onDismiss = { openDialog = false }, onConfirm = { onDeleteClick(quote) })

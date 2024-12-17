@@ -1,5 +1,6 @@
 package com.kqm.mydiaryapp.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerLayoutType
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,7 +56,6 @@ fun CreateQuoteScreen(
     quoteId: Int?,
     onBack: () -> Unit
 ) {
-
     val state = rememberCreateQuoteState(dayId, quoteId)
 
     val isUpdating = quoteId != null && quoteId != 0
@@ -78,6 +80,33 @@ fun CreateQuoteScreen(
         isAlarm = state.alarm
     )
 
+    CreateQuote(
+        state = state,
+        quote = quote,
+        isUpdating = isUpdating,
+        timePickerState = timePickerState,
+        context = context,
+        dayId = dayId,
+        onBack = onBack,
+        onUpdateClick = viewModel::updateQuote,
+        onAddClick = viewModel::addQuote
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateQuote(
+    state: CreateQuoteState,
+    quote: Quote,
+    isUpdating: Boolean,
+    timePickerState: TimePickerState,
+    context: Context,
+    dayId: String,
+    onBack: () -> Unit,
+    onUpdateClick: (String, Quote) -> Unit,
+    onAddClick: (String, Quote) -> Unit
+) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -97,7 +126,8 @@ fun CreateQuoteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .testTag("CreateQuoteScreen"),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TimePicker(
@@ -141,13 +171,13 @@ fun CreateQuoteScreen(
                         }
                     } else {
                         {
-                         Icon(
-                             imageVector = Icons.Filled.Close,
-                             contentDescription = "Alarm inactive",
-                             modifier = Modifier.size(SwitchDefaults.IconSize),
-                         )
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Alarm inactive",
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                            )
+                        }
                     }
-                }
                 )
             }
 
@@ -188,19 +218,21 @@ fun CreateQuoteScreen(
                 Button(
                     onClick = {
                         if (isUpdating) {
-                            viewModel.updateQuote(
-                                dayId,
-                                quote
-                            )
+                            onUpdateClick(dayId, quote)
                         } else {
-                            viewModel.addQuote(dayId, quote)
+                            onAddClick(dayId, quote)
                         }
                         if (state.alarm) {
-                            state.startNotification(context, dayId, timePickerState, state.textState)
+                            state.startNotification(
+                                context,
+                                dayId,
+                                timePickerState,
+                                state.textState
+                            )
                         }
                     },
                     elevation = ButtonDefaults.buttonElevation(10.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag("ButtonSaveQuote"),
                 ) {
                     Text(text = "Guardar", fontSize = 16.sp)
                 }
