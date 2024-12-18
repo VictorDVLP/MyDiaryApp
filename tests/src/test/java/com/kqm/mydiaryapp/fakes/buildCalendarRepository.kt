@@ -39,15 +39,17 @@ class FakeQuotesDataSource : QuoteDataSource {
     }
 
     override suspend fun updateQuote(day: String, quote: Quote) {
-        inMemoryQuotes.map { days ->
-            days.first { it.idRelation == day }.quotes.first { it.id == quote.id }.copy(
-                id = quote.id,
-                hour = quote.hour,
-                note = quote.note,
-                quoteType = quote.quoteType,
-                isAlarm = quote.isAlarm
-            )
+        val updatedQuotes = inMemoryQuotes.value.map { dayItem ->
+            if (dayItem.idRelation == day) {
+                val updatedDayQuotes = dayItem.quotes.map { existingQuote ->
+                    if (existingQuote.id == quote.id) quote else existingQuote
+                }
+                dayItem.copy(quotes = updatedDayQuotes)
+            } else {
+                dayItem
+            }
         }
+        inMemoryQuotes.value = updatedQuotes
     }
 
     override suspend fun insertQuote(day: String, quote: Quote) {
@@ -62,7 +64,13 @@ class FakeQuotesDataSource : QuoteDataSource {
     }
 
     override suspend fun deleteQuote(quote: Quote, day: String) {
-        inMemoryQuotes.map { days -> days.first { it.idRelation == day }.quotes.minus(quote) }
+        val updatedQuotes = inMemoryQuotes.value.map { dayItem ->
+            if (dayItem.idRelation == day) {
+                dayItem.copy(quotes = dayItem.quotes.minus(quote))
+            } else {
+                dayItem
+            }
+        }
+        inMemoryQuotes.value = updatedQuotes
     }
-
 }
